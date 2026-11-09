@@ -286,18 +286,15 @@
             </div>
           </div>
 
-          <!-- Tombol Download -->
+          <!-- Tombol Download & Cetak LKH -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <button onclick="exportToWord()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 shadow-sm transition">
               <i class="fa-solid fa-file-word text-base"></i> Download Word (.doc)
             </button>
-            <button onclick="exportToPdf()" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 shadow-sm transition">
-              <i class="fa-solid fa-file-pdf text-base"></i> Download PDF
+            <button onclick="window.print()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 shadow-sm transition">
+              <i class="fa-solid fa-print text-base"></i> Cetak LKH
             </button>
           </div>
-          <button onclick="window.print()" class="w-full mt-2 bg-slate-700 hover:bg-slate-800 text-white py-2 px-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition">
-            <i class="fa-solid fa-print"></i> Langsung Print LKH
-          </button>
         </div>
 
       </div>
@@ -497,8 +494,8 @@
       instansi: "KANTOR KEMENTERIAN AGAMA KABUPATEN LANDAK",
       makerName: "Julfiza, S.T",
       makerNip: "",
-      makerJabatan: "Penata Layanan Operasional",
-      headName: "Ilham, M. T.",
+      makerJabatan: "Pegawai / Pranata Komputer",
+      headName: "",
       headNip: "",
       periodeText: "",
       signDate: "Ngabang, 1 Maret 2026",
@@ -921,7 +918,7 @@
     }
 
     function formatHeadSignatureName(name) {
-      if(!name) return "( .................................... )";
+      if(!name || name.trim() === '') return "( .................................... )";
       let clean = name.trim();
       clean = clean.replace(/,\s*M\.?\s*P[dD]\.?/gi, ", M. Pd.");
       
@@ -957,8 +954,10 @@
           if (!profile.instansi || profile.instansi.includes("MTs NEGERI LANDAK")) {
             profile.instansi = "KANTOR KEMENTERIAN AGAMA KABUPATEN LANDAK";
           }
-          if (profile.headName) {
-            profile.headName = profile.headName.replace(/,\s*M\.?\s*P[dD]\.?/gi, ", M. Pd.");
+          // Bersihkan nama atasan lama jika masih tersimpan di cache
+          if (profile.headName && profile.headName.toLowerCase().includes("dwi karsono")) {
+            profile.headName = "";
+            profile.headNip = "";
           }
         } catch(e) {}
       }
