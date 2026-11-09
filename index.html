@@ -1278,6 +1278,22 @@
         .replace(/'/g, "&#039;");
     }
 
+    // Pemformatan khusus baris dan nomor untuk dokumen Microsoft Word
+    function formatMultilineForWord(text) {
+      if (!text || text.trim() === '' || text.trim() === '-') return '-';
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length === 0) return '-';
+      
+      return lines.map(line => {
+        const isNumbered = /^\d+\.\s*/.test(line);
+        // Indentasi gantung agar jika teks panjang turun baris, teks sejajar rapi di sebelah nomor
+        const style = isNumbered
+          ? "margin:0 0 2.5pt 0; line-height:1.25; text-align:left; text-indent:-13pt; margin-left:13pt;"
+          : "margin:0 0 2.5pt 0; line-height:1.25; text-align:left;";
+        return `<p style="${style}">${escapeHtml(line)}</p>`;
+      }).join('');
+    }
+
     // ==========================================
     // EKSPOR KE MICROSOFT WORD (.DOC) LENGKAP KOLOM OUTPUT
     // ==========================================
@@ -1298,15 +1314,16 @@
       } else {
         filtered.forEach((r, idx) => {
           const autoEndTime = r.endTime || getStandardEndTime(r.date);
-          const outputText = r.output && r.output.trim() !== '' ? r.output : '-';
+          const descHtml = formatMultilineForWord(r.description);
+          const outputHtml = formatMultilineForWord(r.output);
           rowsHtml += `
             <tr>
               <td style="border:1px solid #000; text-align:center; padding:5px 8px; vertical-align:top;">${idx + 1}</td>
               <td style="border:1px solid #000; padding:5px 8px; vertical-align:top; white-space:nowrap;">${getHariTanggalText(r.date)}</td>
               <td style="border:1px solid #000; text-align:center; padding:5px 8px; vertical-align:top; white-space:nowrap;">${r.startTime || "07.00 WIB"}</td>
               <td style="border:1px solid #000; text-align:center; padding:5px 8px; vertical-align:top; white-space:nowrap;">${autoEndTime}</td>
-              <td style="border:1px solid #000; padding:5px 8px; vertical-align:top; white-space:pre-wrap;">${escapeHtml(r.description)}</td>
-              <td style="border:1px solid #000; padding:5px 8px; vertical-align:top; white-space:pre-wrap;">${escapeHtml(outputText)}</td>
+              <td style="border:1px solid #000; padding:5px 8px; vertical-align:top;">${descHtml}</td>
+              <td style="border:1px solid #000; padding:5px 8px; vertical-align:top;">${outputHtml}</td>
             </tr>
           `;
         });
